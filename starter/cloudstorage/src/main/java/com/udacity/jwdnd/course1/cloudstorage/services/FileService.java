@@ -31,8 +31,8 @@ public class FileService {
         return fileMapper.getFile(id);
     }
 
-    public File getFile(String fileName) {
-        return fileMapper.getFileWithName(fileName);
+    public File getFile(String fileName, Integer userId) {
+        return fileMapper.getFileWithName(fileName, userId);
     }
 
     public int deleteFile(int id) {

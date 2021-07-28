@@ -55,16 +55,16 @@ public class HomeController {
                              RedirectAttributes redirectAttributes) throws IOException {
         String actionError = null;
         String username = auth.getName();
+        Integer userId = this.userService.getUserId(username);
 
         if (fileUpload.isEmpty()) {
             System.out.println("empty file");
             actionError = "Please select a file to upload.";
-        } else if (fileService.getFile(fileUpload.getOriginalFilename()) != null) {
+        } else if (fileService.getFile(fileUpload.getOriginalFilename(), userId) != null) {
             actionError = "The file already exists, cannot upload.";
         }
 
         if (actionError == null) {
-            Integer userId = this.userService.getUserId(username);
             int rowsAdded = this.fileService.uploadFile(fileUpload, userId);
             if (rowsAdded < 1) {
                 actionError = "There file upload failed. Please try again.";
@@ -107,6 +107,7 @@ public class HomeController {
     @PostMapping("/add-credential")
     public String addCredential(@ModelAttribute("credential") Credential credential, Authentication auth,
                                 RedirectAttributes redirectAttributes) {
+        // TODO: encrypt/decrypt credentials
         String actionError = null;
         String username = auth.getName();
         Integer userId = this.userService.getUserId(username);
