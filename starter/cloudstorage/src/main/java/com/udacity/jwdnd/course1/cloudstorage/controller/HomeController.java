@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
@@ -50,53 +51,131 @@ public class HomeController {
     }
 
     @PostMapping("/file-upload")
-    public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Authentication auth)
-            throws IOException {
+    public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Authentication auth,
+                             RedirectAttributes redirectAttributes) throws IOException {
+        String actionError = null;
         String username = auth.getName();
-        Integer userId = this.userService.getUserId(username);
-        this.fileService.uploadFile(fileUpload, userId);
+
+        if (fileUpload.isEmpty()) {
+            System.out.println("empty file");
+            actionError = "Please select a file to upload.";
+        } else if (fileService.getFile(fileUpload.getOriginalFilename()) != null) {
+            actionError = "The file already exists, cannot upload.";
+        }
+
+        if (actionError == null) {
+            Integer userId = this.userService.getUserId(username);
+            int rowsAdded = this.fileService.uploadFile(fileUpload, userId);
+            if (rowsAdded < 1) {
+                actionError = "There file upload failed. Please try again.";
+            }
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
+        }
+
         return "redirect:/result";
     }
 
     @PostMapping("/add-note")
-    public String addNode(@ModelAttribute("note") Note note, Authentication auth) {
+    public String addNote(@ModelAttribute("note") Note note, Authentication auth,
+                          RedirectAttributes redirectAttributes) {
+        String actionError = null;
         String username = auth.getName();
         Integer userId = this.userService.getUserId(username);
         if (noteService.getNote(note.getNoteId()) != null) {
-            this.noteService.updateNote(note);
+            if (this.noteService.updateNote(note) < 1) {
+                actionError = "Update note failed. Please try again.";
+            }
         } else {
-            this.noteService.addNote(note, userId);
+            if (this.noteService.addNote(note, userId) < 1) {
+                actionError = "Add note failed. Please try again.";
+            }
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
         }
         return "redirect:/result";
     }
 
     @PostMapping("/add-credential")
-    public String addCredential(@ModelAttribute("credential") Credential credential, Authentication auth) {
+    public String addCredential(@ModelAttribute("credential") Credential credential, Authentication auth,
+                                RedirectAttributes redirectAttributes) {
+        String actionError = null;
         String username = auth.getName();
         Integer userId = this.userService.getUserId(username);
         if (credentialService.getCredential(credential.getCredentialId()) != null) {
-            this.credentialService.updateCredential(credential);
+            if (this.credentialService.updateCredential(credential) < 1) {
+                actionError = "Update credential failed. Please try again.";
+            }
         } else {
-            this.credentialService.addCredential(credential, userId);
+            if (this.credentialService.addCredential(credential, userId) < 1) {
+                actionError = "Add credential failed. Please try again.";
+            }
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
         }
         return "redirect:/result";
     }
 
     @GetMapping("/file/delete/{id}")
-    public String deleteFile(@PathVariable("id") int id) {
-        this.fileService.deleteFile(id);
+    public String deleteFile(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        String actionError = null;
+
+        if (this.fileService.deleteFile(id) < 1) {
+            actionError = "File delete failed. Please try again.";
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
+        }
+
         return "redirect:/result";
     }
 
     @GetMapping("/note/delete/{id}")
-    public String deleteNote(@PathVariable("id") int id) {
-        this.noteService.deleteNote(id);
+    public String deleteNote(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        String actionError = null;
+
+        if (this.noteService.deleteNote(id) < 1) {
+            actionError = "Note delete failed. Please try again.";
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
+        }
+
         return "redirect:/result";
     }
 
     @GetMapping("/credential/delete/{id}")
-    public String deleteCredential(@PathVariable("id") int id) {
-        this.credentialService.deleteCredential(id);
+    public String deleteCredential(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        String actionError = null;
+
+        if (this.credentialService.deleteCredential(id) < 1) {
+            actionError = "Credential delete failed. Please try again.";
+        }
+
+        if (actionError == null) {
+            redirectAttributes.addFlashAttribute("actionSuccess", true);
+        } else {
+            redirectAttributes.addFlashAttribute("actionError", actionError);
+        }
+
         return "redirect:/result";
     }
 

@@ -16,11 +16,11 @@ public class FileService {
         this.fileMapper = fileMapper;
     }
 
-    public void uploadFile(MultipartFile multipartFile, Integer userId) throws IOException {
+    public int uploadFile(MultipartFile multipartFile, Integer userId) throws IOException {
         String fileSize = "" + multipartFile.getSize();
         File file = new File(null, multipartFile.getOriginalFilename(),multipartFile.getContentType(), fileSize, userId, multipartFile.getBytes());
 
-        this.fileMapper.uploadFile(file);
+        return this.fileMapper.uploadFile(file);
     }
 
     public List<File> getFiles(Integer userId) {
@@ -31,7 +31,11 @@ public class FileService {
         return fileMapper.getFile(id);
     }
 
-    public void deleteFile(int id) {
-        fileMapper.deleteFile(id);
+    public File getFile(String fileName) {
+        return fileMapper.getFileWithName(fileName);
+    }
+
+    public int deleteFile(int id) {
+        return fileMapper.deleteFile(id);
     }
 }
