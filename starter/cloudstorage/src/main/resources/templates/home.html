@@ -155,7 +155,7 @@
                                         th:data-id="${credential.credentialId}"
                                         th:data-url="${credential.url}"
                                         th:data-username="${credential.username}"
-                                        th:data-password="${credential.password}"
+                                        th:data-password="${encryptionService.decryptValue(credential.password, credential.key)}"
                                         onclick="showCredentialModal(this.getAttribute('data-id'), this.getAttribute('data-url'), this.getAttribute('data-username'), this.getAttribute('data-password'))"
                                         class="btn btn-success">Edit</button>
                                 <a th:href="@{/home/credential/delete/{id}(id=${credential.credentialId})}" class="btn btn-danger">Delete</a>
