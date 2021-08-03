@@ -107,7 +107,6 @@ public class HomeController {
     @PostMapping("/add-credential")
     public String addCredential(@ModelAttribute("credential") Credential credential, Authentication auth,
                                 RedirectAttributes redirectAttributes) {
-        // TODO: encrypt/decrypt credentials
         String actionError = null;
         String username = auth.getName();
         Integer userId = this.userService.getUserId(username);
